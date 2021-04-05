@@ -1,32 +1,31 @@
 ﻿using System;
-
-namespace DIO.Series
+using System.Collections.Generic;
+namespace DIO.Bank
 {
     class Program
     {
-        static SerieRepositorio repositorio = new SerieRepositorio();
+        static List<Conta> listContas = new List<Conta>();
         static void Main(string[] args)
         {
             string opcaoUsuario = ObterOpcaoUsuario();
-
-            while (opcaoUsuario.ToUpper() != "X")
+            while(opcaoUsuario.ToUpper() != "X")
             {
                 switch (opcaoUsuario)
                 {
                     case "1":
-                    ListarSeries();
+                    ListarContas();
                     break;
                     case "2":
-                    InserirSeries();
+                    InserirConta();
                     break;
                     case "3":
-                    AtualizarSeries();
+                    Transferir();
                     break;
                     case "4":
-                    ExcluirSerie();
+                    Sacar();
                     break;
                     case "5":
-                    VisualizarSerie();
+                    Depositar();
                     break;
                     case "C":
                     Console.Clear();
@@ -36,109 +35,84 @@ namespace DIO.Series
                 }
                 opcaoUsuario = ObterOpcaoUsuario();
             }
-            Console.WriteLine("Obrigado por utilizar nossos serviços.");
-            Console.ReadLine();
-            
+                Console.WriteLine("Obrigado por utlizar nossos serviços.");
+                Console.ReadLine();
         }
-        private static void ListarSeries()
+
+        private static void Transferir()
         {
-            Console.WriteLine("Listar Séries");
-            var lista = repositorio.Lista();
-            if (lista.Count == 0)
+            Console.Write("Digite o número da conta de origem: ");
+            int IndiceContaOrigem = int.Parse(Console.ReadLine());
+            Console.Write("Digite o número da conta de destino: ");
+            int IndiceContaDestino = int.Parse(Console.ReadLine());
+            Console.Write("Digite o valor a ser transferido: ");
+            double valorTransferencia = double.Parse(Console.ReadLine());
+            listContas[IndiceContaOrigem].Tranferir(valorTransferencia, listContas[IndiceContaDestino]);
+        }
+        private static void Sacar()
+        {
+            Console.Write("Digite o número da conta: ");
+            int indiceConta = int.Parse(Console.ReadLine());
+            Console.Write("Digite o valor  a ser sacado: ");
+            double valorSaque = double.Parse(Console.ReadLine());
+            listContas[indiceConta].Sacar(valorSaque);
+        }
+        private static void Depositar()
+        {
+            Console.Write("Digite o número da conta: ");
+            int indiceConta = int.Parse(Console.ReadLine());
+            Console.Write("Digite o valor  a ser depositado: ");
+            double valorDeposito = double.Parse(Console.ReadLine());
+            listContas[indiceConta].Depositar(valorDeposito);
+        }
+        private static void InserirConta()
+        {
+            Console.WriteLine("Inserir Nova Conta");
+            Console.Write("Digite 1 para Conta Física ou 2 para Conta Jurídica: ");
+            int entradaTipoConta = int.Parse(Console.ReadLine());
+            Console.Write("Digite o Nome do Cliente: ");
+            string entradaNome = Console.ReadLine();
+            Console.Write("Digite o Saldo Inicial: ");
+            double entradaSaldo = double.Parse(Console.ReadLine());
+            Console.Write("Digiteo Crédito: ");
+            double entradaCredito = double.Parse(Console.ReadLine());
+            Conta novaConta = new Conta(tipoConta: (TipoConta)entradaTipoConta,saldo: entradaSaldo,credito: entradaCredito,nome: entradaNome);
+            listContas.Add(novaConta);
+        }
+        private static void ListarContas()
+        {
+            Console.WriteLine("Listar Contas");
+            if (listContas.Count == 0)
             {
-                Console.WriteLine("Nenhuma Série Cadastrada");
+                Console.WriteLine("Nenhuma Conta Cadastrada");
                 return;
             }
-            foreach (var serie in lista)
+            for (int i = 0; i < listContas.Count; i++)
             {
-                var excluido = serie.retornaExcluido();
-
-                Console.WriteLine("#ID {0}: - {1} {2}", serie.retornaID(), serie.retornaTitulo(), (excluido ? "Excluído" : ""));
+                Conta conta = listContas[i];
+                Console.Write("#{0} - ", i);
+                Console.WriteLine(conta);
             }
-        }
-        private static void InserirSeries()
-        {
-            foreach (int i in Enum.GetValues(typeof(Genero)))
-            {
-                Console.WriteLine("{0}-{1}" , i, Enum.GetName(typeof(Genero), i));
-            }
-            Console.Write("Digite o gênero entre as opções acima: ");
-            int entradaGenero = int.Parse(Console.ReadLine());
-            Console.Write("Digite o Título da Série: ");
-            string entradaTitulo = Console.ReadLine();
-            Console.Write("Digite o ano de início da série ");
-            int entradaANO = int.Parse(Console.ReadLine());
-            Console.Write("Digite a descrição da série: ");
-            string entradaDescricao = Console.ReadLine();
 
-            Serie novaSerie = new Serie(id: repositorio.ProximoId(),
-                                        genero: (Genero)entradaGenero,
-                                        titulo: entradaTitulo,
-                                        ano: entradaANO,
-                                        descricao: entradaDescricao);
-            repositorio.Insere(novaSerie);
         }
 
-        private static void AtualizarSeries()
-        {
-            Console.Write("Digite o id da série à atualizar: ");
-            int indiceSerie = int.Parse(Console.ReadLine());
-            
-            foreach (int i in Enum.GetValues(typeof(Genero)))
-            {
-                Console.WriteLine("{0}-{1}" , i, Enum.GetName(typeof(Genero), i));
-            }
-            Console.Write("Digite o gênero entre as opções acima: ");
-            int entradaGenero = int.Parse(Console.ReadLine());
-            Console.Write("Digite o Título da Série: ");
-            string entradaTitulo = Console.ReadLine();
-            Console.Write("Digite o ano de início da série ");
-            int entradaANO = int.Parse(Console.ReadLine());
-            Console.Write("Digite a descrição da série: ");
-            string entradaDescricao = Console.ReadLine();
-            
-            Serie atualizaSerie = new Serie(id: indiceSerie,
-                                        genero: (Genero)entradaGenero,
-                                        titulo: entradaTitulo,
-                                        ano: entradaANO,
-                                        descricao: entradaDescricao);
-            repositorio.Atualiza(indiceSerie, atualizaSerie);
-        }
-
-        private static void ExcluirSerie()
-        {
-            Console.Write("digite o id da série a ser excluída: ");
-            int indiceSerie = int.Parse(Console.ReadLine());
-
-            repositorio.Exclui(indiceSerie);
-        }
-
-        private static void VisualizarSerie()
-        {
-            Console.Write("Digite o id da série: ");
-            int indiceSerie = int.Parse(Console.ReadLine());
-
-            var serie = repositorio.RetornaPorID(indiceSerie);
-
-            Console.WriteLine(serie);
-        }
         private static string ObterOpcaoUsuario()
         {
             Console.WriteLine();
-            Console.WriteLine("DIO séries a seu dispor!!!");
-            Console.WriteLine("Informe a opção desejada:");
-            Console.WriteLine("1 - Listar séries");
-            Console.WriteLine("2 - Inserir Nova Série");
-            Console.WriteLine("3 - Atualizar Série");
-            Console.WriteLine("4 - Excluir Série");
-            Console.WriteLine("5 - Visualizar Série");
+            Console.WriteLine(" DIO Bank a seu dispor !!!");
+            Console.WriteLine("Informe a opção desejada");
+            Console.WriteLine("1 - Listar contas");
+            Console.WriteLine("2 - Inserir nova conta");
+            Console.WriteLine("3 - Transferir");
+            Console.WriteLine("4 - Sacar");
+            Console.WriteLine("5 - Depositar");
             Console.WriteLine("C - Limpar Tela");
             Console.WriteLine("X - Sair");
             Console.WriteLine();
-            string opcaoUsuario = Console.ReadLine().ToUpper();
+            string OpcaoUsuario = Console.ReadLine().ToUpper();
             Console.WriteLine();
-            return opcaoUsuario;
+            return OpcaoUsuario;
+            
         }
     }
-
 }
